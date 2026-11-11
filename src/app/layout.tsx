@@ -9,5 +9,5 @@ export const metadata: Metadata = { title: { default: "Wiki AP5", template: "%s 
 export default async function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   let items: NavItem[] = [];
   try { items = await navigation(); } catch { items = []; }
-  return <html lang="es"><body><WikiShell navigation={items}>{children}</WikiShell></body></html>;
+  return <html lang="es" data-scroll-behavior="smooth"><body><WikiShell navigation={items}>{children}</WikiShell></body></html>;
 }

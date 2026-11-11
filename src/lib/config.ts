@@ -7,6 +7,7 @@ const schema = z.object({
   ARCHITECTURE_SOURCE_PATH: z.string().default("../Architecture"),
   CONTENT_ASSET_PATH: z.string().default("./data/content"),
   CONTENT_COMMIT_SHA: z.string().optional(),
+  LOCAL_FILESYSTEM_MODE: z.enum(["true", "false"]).default("false").transform((value) => value === "true"),
   SYNC_WEBHOOK_SECRET: z.string().min(8).default("change-me-local"),
   AI_PROVIDER: provider.default("none"),
   AI_CHAT_MODEL: z.string().optional(),

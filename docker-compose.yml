@@ -37,6 +37,7 @@ services:
       DATABASE_URL: postgres://ap5wiki:ap5wiki@db:5432/ap5wiki
       ARCHITECTURE_SOURCE_PATH: /content/repository/Architecture
       CONTENT_ASSET_PATH: /app/data/content
+      LOCAL_FILESYSTEM_MODE: "false"
     volumes:
       - ../Architecture:/content/repository/Architecture:ro
       - ap5wiki-content:/app/data/content
@@ -52,6 +53,7 @@ services:
       DATABASE_URL: postgres://ap5wiki:ap5wiki@db:5432/ap5wiki
       ARCHITECTURE_SOURCE_PATH: /content/repository/Architecture
       CONTENT_ASSET_PATH: /app/data/content
+      LOCAL_FILESYSTEM_MODE: "false"
     ports: ["3000:3000"]
     volumes:
       - ../Architecture:/content/repository/Architecture:ro

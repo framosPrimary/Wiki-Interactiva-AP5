@@ -25,6 +25,10 @@ npm run dev
 
 Sin proveedor de IA, navegación y búsqueda funcionan; el chat muestra las fuentes relacionadas y avisa que falta configurar el modelo.
 
+### Vista previa sin Docker
+
+Para revisar la interfaz y el corpus directamente desde el workspace, configurar `LOCAL_FILESYSTEM_MODE=true` y ejecutar `npm run dev`. Este modo lee `Architecture` como solo lectura y ofrece navegación, documentos, imágenes y búsqueda textual. PostgreSQL/pgvector continúa siendo obligatorio para el despliegue y para probar la ingestión versionada y la búsqueda semántica.
+
 ## Proveedores
 
 `AI_PROVIDER` y `EMBEDDING_PROVIDER` aceptan `none`, `openai`, `openai-compatible` o `gemini`. Chat y embeddings tienen modelo, clave y URL base independientes. Las claves son variables del servidor y nunca se envían al navegador.

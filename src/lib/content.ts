@@ -1,16 +1,20 @@
 import { query } from "./db";
 import type { NavItem, SearchHit, WikiDocument } from "./types";
 import { embedTexts } from "./ai/providers";
+import { config } from "./config";
+import { localDocument, localNavigation, localRecent, localSearch, localStats } from "./local-content";
 
 interface ActiveRow { id: string; commit_sha: string; published_at: Date; stats: Record<string, number> }
 
 export async function activeVersion(): Promise<ActiveRow | null> {
+  if (config().LOCAL_FILESYSTEM_MODE) return { id: "local", commit_sha: "local-preview", published_at: new Date(), stats: await localStats() };
   const result = await query<ActiveRow>(`SELECT v.id, v.commit_sha, v.published_at, v.stats
     FROM active_content_version a JOIN content_versions v ON v.id = a.version_id WHERE a.singleton = true`);
   return result.rows[0] ?? null;
 }
 
 export async function navigation(): Promise<NavItem[]> {
+  if (config().LOCAL_FILESYSTEM_MODE) return localNavigation();
   const result = await query<{
     title: string; slug: string; document_id: string | null; module: string; submodule: string | null; source_path: string;
   }>(`SELECT d.title, d.slug, d.document_id, d.module, d.submodule, d.source_path
@@ -20,6 +24,7 @@ export async function navigation(): Promise<NavItem[]> {
 }
 
 export async function documentBySlug(slug: string): Promise<WikiDocument | null> {
+  if (config().LOCAL_FILESYSTEM_MODE) return localDocument(slug);
   const result = await query<{
     id: string; version_id: string; slug: string; source_path: string; title: string; module: string; submodule: string | null;
     document_id: string | null; revision: number | null; review_status: string | null; content: string; headings: WikiDocument["headings"];
@@ -30,6 +35,7 @@ export async function documentBySlug(slug: string): Promise<WikiDocument | null>
 }
 
 export async function recentDocuments(limit = 8): Promise<NavItem[]> {
+  if (config().LOCAL_FILESYSTEM_MODE) return localRecent(limit);
   const result = await query<{ title: string; slug: string; document_id: string | null; module: string; submodule: string | null }>(
     `SELECT d.title, d.slug, d.document_id, d.module, d.submodule FROM documents d
      JOIN active_content_version a ON a.version_id = d.version_id
@@ -40,6 +46,10 @@ export async function recentDocuments(limit = 8): Promise<NavItem[]> {
 function vectorLiteral(vector: number[]): string { return `[${vector.join(",")}]`; }
 
 export async function contextForSlug(slug: string, limit = 5): Promise<SearchHit[]> {
+  if (config().LOCAL_FILESYSTEM_MODE) {
+    const document = await localDocument(slug);
+    return document ? localSearch(`${document.title} ${document.documentId}`, limit) : [];
+  }
   const result = await query<{
     title: string; slug: string; document_id: string | null; heading: string | null; anchor: string | null;
     excerpt: string; authority: "functional" | "supplemental"; source_kind: string; review_status: string | null;
@@ -56,6 +66,7 @@ export async function contextForSlug(slug: string, limit = 5): Promise<SearchHit
 }
 
 export async function searchContent(term: string, limit = 10): Promise<SearchHit[]> {
+  if (config().LOCAL_FILESYSTEM_MODE) return localSearch(term, limit);
   const clean = term.trim().slice(0, 300);
   if (!clean) return [];
   let embedding: number[] | null = null;
